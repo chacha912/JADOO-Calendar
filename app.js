@@ -103,6 +103,7 @@ const categoryUtil = (() => {
 
   const $categoryMain = document.querySelector('#categoryMain .dropdown-menu');
   const render = () => {
+    // 메인화면의 카테고리 변경
     $categoryMain.innerHTML =
       categories
         .map(
@@ -154,6 +155,86 @@ const categoryUtil = (() => {
       cateName.value = '';
       document.getElementById('newCategoryMain').focus();
     });
+
+    // 아이템추가창 카테고리 변경
+    document.querySelector('.modal-add .dropdown-category').innerHTML =
+      `
+      <span id="modalAddCategoryLabel" class="modal-input-label">카테고리 <span class="a11y-hidden">선택</span></span>
+      <button
+        type="button"
+        id="modalAddCategoryBtn"
+        class="dropdown-toggle"
+        name="${categories[0].name}"
+        value="${categories[0].id}"
+        aria-labelledby="modalAddCategoryLabel modalAddCategoryBtn"
+        aria-haspopup="listbox"
+      >
+        ${categories[0].name}
+      </button>
+      <ul
+        class="dropdown-menu"
+        tabindex="-1"
+        role="listbox"
+        aria-labelledby="modalAddCategoryLabel"
+    >` +
+      categories
+        .map(
+          category =>
+            `
+              <li class="dropdown-item" role="option">
+                <button type="button" value="${category.id}" class="dropdown-option">
+                  ${category.name}
+                </button>
+              </li>
+            `
+        )
+        .join('') +
+      '</ul>';
+
+    const dropdownCategoryModalAdd = (() => {
+      const $dropdown = document.querySelector(
+        '#modalAddCategoryBtn + .dropdown-menu'
+      );
+      return {
+        toggle() {
+          $dropdown.classList.toggle('--show');
+        },
+        close() {
+          $dropdown.classList.remove('--show');
+        }
+      };
+    })();
+
+    const $categoryBtn = document.getElementById('modalAddCategoryBtn');
+
+    document
+      .querySelector('.modal-add .dropdown-category')
+      .addEventListener('click', e => {
+        e.stopPropagation();
+
+        const $modalAddCategoryBtn = closest(
+          e.target,
+          'dropdown-toggle',
+          'dropdown-category'
+        );
+        const $modalAddCategoryOption = closest(
+          e.target,
+          'dropdown-option',
+          'dropdown-category'
+        );
+
+        if ($modalAddCategoryBtn) {
+          dropdownCategoryModalAdd.toggle();
+          return;
+        }
+
+        if ($modalAddCategoryOption) {
+          $categoryBtn.textContent = $modalAddCategoryOption.textContent.trim();
+          $categoryBtn.name = $modalAddCategoryOption.textContent.trim();
+          $categoryBtn.value = $modalAddCategoryOption.value;
+          dropdownCategoryModalAdd.close();
+        }
+      });
   };
 
   return {
@@ -300,13 +381,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   document.querySelector('.modal-add').addEventListener('click', () => {
-    dropdownTypeModalAdd.close();
+    [...document.querySelectorAll('.modal-add .dropdown-menu')].forEach(
+      $dropdown => {
+        $dropdown.classList.remove('--show');
+      }
+    );
   });
 
   document.querySelector('.modal-dim').addEventListener('click', () => {
     modalAdd.close();
     modalEdit.close();
-    dropdownTypeModalAdd.close();
+    [...document.querySelectorAll('.modal-add .dropdown-menu')].forEach(
+      $dropdown => {
+        $dropdown.classList.remove('--show');
+      }
+    );
   });
 });
 
