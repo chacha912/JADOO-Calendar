@@ -243,6 +243,9 @@ const categoryUtil = (() => {
     getSelectedName() {
       return categories.filter(category => category.selected)[0].name;
     },
+    getFirstCategory() {
+      return categories[0];
+    },
     fetch(data) {
       categories = data;
       nextId = data.length + 1;
@@ -463,9 +466,10 @@ const modalAdd = (() => {
 
   const $modal = document.querySelector('.modal-add');
   const $modalDim = document.querySelector('.modal-dim');
-  const $titleYear = document.querySelector('.modal-add .month');
-  const $titleMonth = document.querySelector('.modal-add .date');
-  const $itemDate = document.querySelector('.modal-add .modal-input-date');
+  const $titleYear = $modal.querySelector('.month');
+  const $titleMonth = $modal.querySelector('.date');
+  const $itemDate = $modal.querySelector('.modal-input-date');
+  const $itemContent = $modal.querySelector('.modal-input-txt');
 
   return {
     toggle(itemDate) {
@@ -484,6 +488,15 @@ const modalAdd = (() => {
       $modal.classList.remove('--show');
       $modalDim.classList.remove('--show');
       document.body.classList.remove('modal-open');
+    },
+    reset() {
+      const $itemCategoryBtn = $modal.querySelector('#modalAddCategoryBtn');
+      const $itemTypeBtn = $modal.querySelector('#modalAddTypeBtn');
+      $itemCategoryBtn.value = categoryUtil.getFirstCategory().id;
+      $itemCategoryBtn.textContent = categoryUtil.getFirstCategory().name;
+      $itemTypeBtn.value = ITEM_TYPE[0].id;
+      $itemTypeBtn.textContent = ITEM_TYPE[0].name;
+      $itemContent.value = '';
     }
   };
 })();
@@ -520,6 +533,18 @@ const modalEdit = (() => {
     }
   };
 })();
+
+document
+  .querySelector('.modal-add .modal-close-btn')
+  .addEventListener('click', () => {
+    modalAdd.close();
+  });
+
+document
+  .querySelector('.modal-edit .modal-close-btn')
+  .addEventListener('click', () => {
+    modalEdit.close();
+  });
 
 document.querySelector('.calendar-dates').addEventListener('click', e => {
   // -------------------Hover Function-----------------------
@@ -571,10 +596,6 @@ document.querySelector('.calendar-dates').addEventListener('click', e => {
     deleteDataArray(itemId);
     deleteDataDOM(itemId, $parentNode);
   }
-
-  // [...document.querySelectorAll('.--show')].forEach($showedUtil => {
-  //   $showedUtil.classList.remove('--show');
-  // });
 });
 
 // 아이템 추가
@@ -590,6 +611,8 @@ document.querySelector('.modal-add').addEventListener('submit', e => {
 
   addDataArray(newItem);
   addDataDomTree(newItem);
+  modalAdd.close();
+  modalAdd.reset();
 });
 
 // 아이템 수정
@@ -606,4 +629,5 @@ document.querySelector('.modal-edit').addEventListener('submit', e => {
 
   modifyDataArray(editItem);
   modifyDataDOM(editItem);
+  modalEdit.close();
 });
