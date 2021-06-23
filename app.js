@@ -1,88 +1,86 @@
+const ITEM_TYPE = [
+  { id: 1, name: '✅ 투두리스트' },
+  { id: 2, name: '📃 글' }
+];
+
 /**
  * 요소 더미 데이터
- * 
+ *
  */
- let data = [
+let data = [
   {
-      id : 1,
-      type:'todo',
-      category: '네카',
-      date: '2021-06-23',
-      content: '하이',
-      order: 1
+    id: 1,
+    type: 'todo',
+    category: '네카',
+    date: '2021-06-23',
+    content: '하이',
+    order: 1
   },
   {
-      id : 2,
-      type:'todo',
-      category: '네카',
-      date: '2021-06-24',
-      content: '하이',
-      order: 1
+    id: 2,
+    type: 'todo',
+    category: '네카',
+    date: '2021-06-24',
+    content: '하이',
+    order: 1
   },
   {
-      id : 3,
-      type:'todo',
-      category: '네카',
-      date: '2021-06-25',
-      content: '하이',
-      order: 1
+    id: 3,
+    type: 'todo',
+    category: '네카',
+    date: '2021-06-25',
+    content: '하이',
+    order: 1
   },
   {
-      id : 4,
-      type:'text',
-      category: '네카',
-      date: '2021-06-23',
-      content: '하이',
-      order: 2
+    id: 4,
+    type: 'text',
+    category: '네카',
+    date: '2021-06-23',
+    content: '하이',
+    order: 2
   },
   {
-      id : 5,
-      type:'todo',
-      category: '네카',
-      date: '2021-06-23',
-      content: '하이',
-      order: 1
+    id: 5,
+    type: 'todo',
+    category: '네카',
+    date: '2021-06-23',
+    content: '하이',
+    order: 1
   },
   {
-      id : 6,
-      type:'todo',
-      category: '네카',
-      date: '2021-09-24',
-      content: '하이 9월 24일',
-      order: 1
+    id: 6,
+    type: 'todo',
+    category: '네카',
+    date: '2021-09-24',
+    content: '하이 9월 24일',
+    order: 1
   },
   {
-      id : 7,
-      type:'todo',
-      category: '네카',
-      date: '2021-07-25',
-      content: '하이 7월 25일',
-      order: 1
+    id: 7,
+    type: 'todo',
+    category: '네카',
+    date: '2021-07-25',
+    content: '하이 7월 25일',
+    order: 1
   },
   {
-      id : 8,
-      type:'text',
-      category: '네카',
-      date: '2021-08-23',
-      content: '하이 8월 23일',
-      order: 2
+    id: 8,
+    type: 'text',
+    category: '네카',
+    date: '2021-08-23',
+    content: '하이 8월 23일',
+    order: 2
   },
   {
-    id : 8,
-    type:'text',
+    id: 8,
+    type: 'text',
     category: '네카',
     date: '2021-06-27',
     content: '하이 8월 23일',
     order: 2
-},
-]
-
-const $calendarDates = document.querySelector('.calendar');
-
-document.documentElement.style.setProperty(
-  '--scroll-width',
-  $calendarDates.offsetWidth - $calendarDates.clientWidth + 'px'
-);
+  }
+];
 
 // closest 커스텀 함수
 const closest = ($startElem, targetClass, endClass) => {
@@ -110,7 +108,7 @@ const categoryUtil = (() => {
             `
               <li
                 id="cateMain${category.id}"
-                class="dropdown-item dropdown-option ${
+                class="dropdown-item dropdown-option-icon ${
                   category.selected ? '--selected' : ''
                 }"
                 role="option"
@@ -218,12 +216,74 @@ const categoryUtil = (() => {
   };
 })();
 
+const $calendarDates = document.querySelector('.calendar');
+
 document.addEventListener('DOMContentLoaded', () => {
+  document.documentElement.style.setProperty(
+    '--scroll-width',
+    $calendarDates.offsetWidth - $calendarDates.clientWidth + 'px'
+  );
+
   categoryUtil.fetch([
     { id: 1, name: '✔ TODO', selected: true },
     { id: 2, name: '✍ 네카라쿠배', selected: false },
     { id: 3, name: '🙏 감사일기', selected: false }
   ]);
+
+  document.querySelector('.modal-add .dropdown-type').innerHTML =
+    `
+      <span id="modalAddTypeLabel" class="modal-input-label">타입 <span class="a11y-hidden">선택</span></span>
+      <button
+        type="button"
+        id="modalAddTypeBtn"
+        class="dropdown-toggle"
+        name="${ITEM_TYPE[0].name}"
+        value="${ITEM_TYPE[0].id}"
+        aria-labelledby="modalAddTypeLabel modalAddTypeBtn"
+        aria-haspopup="listbox"
+      >
+        ${ITEM_TYPE[0].name}
+      </button>
+      <ul
+        class="dropdown-menu"
+        tabindex="-1"
+        role="listbox"
+        aria-labelledby="modalAddTypeLabel"
+    >` +
+    ITEM_TYPE.map(
+      type =>
+        `
+        <li class="dropdown-item" role="option">
+          <button type="button" value="${type.id}" class="dropdown-option">
+            ${type.name}
+          </button>
+        </li>
+      `
+    ).join('') +
+    '</ul>';
+
+  const dropdownTypeModalAdd = (() => {
+    let isActive = false;
+
+    const $dropdown = document.querySelector(
+      '#modalAddTypeBtn + .dropdown-menu'
+    );
+
+    return {
+      toggle() {
+        isActive = !isActive;
+        $dropdown.classList.toggle('--show');
+      },
+      close() {
+        isActive = false;
+        $dropdown.classList.remove('--show');
+      }
+    };
+  })();
+
+  document.getElementById('modalAddTypeBtn').addEventListener('click', () => {
+    dropdownTypeModalAdd.toggle();
+  });
 });
 
 const dropdownCategoryMain = (() => {
@@ -252,7 +312,7 @@ document
   .addEventListener('click', e => {
     const $dropdownOption = closest(
       e.target,
-      'dropdown-option',
+      'dropdown-option-icon',
       'dropdown-menu'
     );
     const $cateAddBtn = closest(e.target, 'category-add-btn', 'dropdown-menu');
@@ -331,7 +391,7 @@ const modalEdit = (() => {
   const $itemDate = document.querySelector('.modal-edit .modal-input-date');
   const $itemTextArea = document.querySelector('.modal-edit .modal-input-txt');
   const $itemId = document.querySelector('.modal-edit .id');
-  
+
   return {
     toggle(itemDate, content, itemId) {
       isActive = !isActive;
@@ -373,20 +433,35 @@ document.querySelector('.calendar-dates').addEventListener('click', e => {
     modalAdd.toggle(itemDate);
   }
 
-  const $selectedModifyBtn = closest(e.target, 'item-edit-btn', 'calendar-dates');
-  if($selectedModifyBtn){
-    const itemDate = $selectedModifyBtn.parentElement.parentElement.parentElement.parentElement.dataset.date;
-    const content = $selectedModifyBtn.parentElement.parentElement.querySelector('label')?.textContent.trim() ?? 
-    $selectedModifyBtn.parentElement.parentElement.querySelector('p')?.textContent.trim();
+  const $selectedModifyBtn = closest(
+    e.target,
+    'item-edit-btn',
+    'calendar-dates'
+  );
+  if ($selectedModifyBtn) {
+    const itemDate =
+      $selectedModifyBtn.parentElement.parentElement.parentElement.parentElement
+        .dataset.date;
+    const content =
+      $selectedModifyBtn.parentElement.parentElement
+        .querySelector('label')
+        ?.textContent.trim() ??
+      $selectedModifyBtn.parentElement.parentElement
+        .querySelector('p')
+        ?.textContent.trim();
     const itemId = $selectedModifyBtn.parentElement.parentElement.dataset.id;
 
     modalEdit.toggle(itemDate, content, itemId);
-    
   }
-  const $selectedDeleteBtn = closest(e.target, 'item-delete-btn', 'calendar-dates');
-  if($selectedDeleteBtn){
+  const $selectedDeleteBtn = closest(
+    e.target,
+    'item-delete-btn',
+    'calendar-dates'
+  );
+  if ($selectedDeleteBtn) {
     const itemId = $selectedDeleteBtn.parentElement.parentElement.dataset.id;
-    const $parentNode = $selectedDeleteBtn.parentElement.parentElement.parentElement;
+    const $parentNode =
+      $selectedDeleteBtn.parentElement.parentElement.parentElement;
     deleteDataArray(itemId);
     deleteDataDOM(itemId, $parentNode);
   }
@@ -415,7 +490,7 @@ document.querySelector('.modal-add').addEventListener('submit', e => {
 
 document.querySelector('.modal-edit').addEventListener('submit', e => {
   e.preventDefault();
-  console.log(e.currentTarget.itemId.value)
+  console.log(e.currentTarget.itemId.value);
   const itemId = e.currentTarget.itemId.value;
   const itemDate = e.currentTarget.itemDate.value;
   const itemCategory = e.currentTarget.itemCategory.value;
