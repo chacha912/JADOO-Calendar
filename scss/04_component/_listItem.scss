@@ -17,6 +17,14 @@
 
   &:hover .item-control-btn {
     opacity: 1;
+    + .item-util.--show {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  &:hover .item-control-btn.--invisible {
+    opacity: 0;
   }
 
   &-todo {
@@ -41,6 +49,7 @@
     padding: 10px 4px;
     background: $primaryLightPink2;
     border-radius: 10px;
+    // opacity: 0; // hover 아닐 땐 안 보이도록
 
     &::before {
       content: '';
@@ -52,13 +61,14 @@
       border-style: solid;
       border-width: 12px;
       border-color: transparent $primaryLightPink2 transparent transparent;
+      pointer-events: none; //
     }
   }
 
-  &-util.--show {
-    display: flex;
-    flex-direction: column;
-  }
+  // &-util.--show {
+  //   display: flex;
+  //   flex-direction: column;
+  // }
 
   &-edit-btn {
     margin: 6px 0;
@@ -68,7 +78,7 @@
 .calendar-date .item-util {
   top: 50%;
   left: auto;
-  right: 6px;
+  right: 2px;
   //   margin-top: 20px;
 
   &::before {
@@ -127,5 +137,18 @@
     height: 10px;
     background: $primaryLightPink;
     border-radius: 5px;
+  }
+}
+
+.dragging {
+  color: gainsboro;
+  pointer-events: none; // 드래그 할 땐
+  > .item-util {
+    display: flex;
+    flex-direction: column;
+    > .item-edit-btn,
+    .item-delete-btn {
+      display: none;
+    }
   }
 }
