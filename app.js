@@ -82,6 +82,8 @@ let data = [
   }
 ];
 
+const $calendarDates = document.querySelector('.calendar');
+
 // closest 커스텀 함수
 const closest = ($startElem, targetClass, endClass) => {
   let elem = $startElem;
@@ -216,8 +218,6 @@ const categoryUtil = (() => {
   };
 })();
 
-const $calendarDates = document.querySelector('.calendar');
-
 document.addEventListener('DOMContentLoaded', () => {
   document.documentElement.style.setProperty(
     '--scroll-width',
@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 3, name: '🙏 감사일기', selected: false }
   ]);
 
+  // 아이템 추가/편집창 타입 드롭다운 렌더링
   document.querySelector('.modal-add .dropdown-type').innerHTML =
     `
       <span id="modalAddTypeLabel" class="modal-input-label">타입 <span class="a11y-hidden">선택</span></span>
@@ -263,41 +264,59 @@ document.addEventListener('DOMContentLoaded', () => {
     '</ul>';
 
   const dropdownTypeModalAdd = (() => {
-    let isActive = false;
-
     const $dropdown = document.querySelector(
       '#modalAddTypeBtn + .dropdown-menu'
     );
 
     return {
       toggle() {
-        isActive = !isActive;
         $dropdown.classList.toggle('--show');
       },
       close() {
-        isActive = false;
         $dropdown.classList.remove('--show');
       }
     };
   })();
 
-  document.getElementById('modalAddTypeBtn').addEventListener('click', () => {
+  const $modalAddTypeBtn = document.getElementById('modalAddTypeBtn');
+
+  $modalAddTypeBtn.addEventListener('click', e => {
+    e.stopPropagation();
     dropdownTypeModalAdd.toggle();
+  });
+
+  document
+    .querySelector('#modalAddTypeBtn + .dropdown-menu')
+    .addEventListener('click', e => {
+      e.stopPropagation();
+
+      const $dropdownOption = e.target;
+      if (!$dropdownOption.classList.contains('dropdown-option')) return;
+
+      $modalAddTypeBtn.textContent = $dropdownOption.textContent.trim();
+      $modalAddTypeBtn.name = $dropdownOption.textContent.trim();
+      $modalAddTypeBtn.value = $dropdownOption.value;
+      dropdownTypeModalAdd.close();
+    });
+
+  document.querySelector('.modal-add').addEventListener('click', () => {
+    dropdownTypeModalAdd.close();
+  });
+
+  document.querySelector('.modal-dim').addEventListener('click', () => {
+    modalAdd.close();
+    modalEdit.close();
+    dropdownTypeModalAdd.close();
   });
 });
 
 const dropdownCategoryMain = (() => {
-  let isActive = false;
-
   const $dropdown = document.querySelector('#categoryMain .dropdown-menu');
-
   return {
     toggle() {
-      isActive = !isActive;
       $dropdown.classList.toggle('--show');
     },
     close() {
-      isActive = false;
       $dropdown.classList.remove('--show');
     }
   };
@@ -469,11 +488,6 @@ document.querySelector('.calendar-dates').addEventListener('click', e => {
   // [...document.querySelectorAll('.--show')].forEach($showedUtil => {
   //   $showedUtil.classList.remove('--show');
   // });
-});
-
-document.querySelector('.modal-dim').addEventListener('click', () => {
-  modalAdd.close();
-  modalEdit.close();
 });
 
 // 아이템 추가
