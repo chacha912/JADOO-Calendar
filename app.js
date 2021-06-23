@@ -164,7 +164,7 @@ const categoryUtil = (() => {
         type="button"
         id="modalAddCategoryBtn"
         class="dropdown-toggle"
-        name="${categories[0].name}"
+        name="itemCategory"
         value="${categories[0].id}"
         aria-labelledby="modalAddCategoryLabel modalAddCategoryBtn"
         aria-haspopup="listbox"
@@ -230,7 +230,6 @@ const categoryUtil = (() => {
 
         if ($modalAddCategoryOption) {
           $categoryBtn.textContent = $modalAddCategoryOption.textContent.trim();
-          $categoryBtn.name = $modalAddCategoryOption.textContent.trim();
           $categoryBtn.value = $modalAddCategoryOption.value;
           dropdownCategoryModalAdd.close();
         }
@@ -319,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         type="button"
         id="modalAddTypeBtn"
         class="dropdown-toggle"
-        name="${ITEM_TYPE[0].name}"
+        name="itemType"
         value="${ITEM_TYPE[0].id}"
         aria-labelledby="modalAddTypeLabel modalAddTypeBtn"
         aria-haspopup="listbox"
@@ -375,7 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!$dropdownOption.classList.contains('dropdown-option')) return;
 
       $modalAddTypeBtn.textContent = $dropdownOption.textContent.trim();
-      $modalAddTypeBtn.name = $dropdownOption.textContent.trim();
       $modalAddTypeBtn.value = $dropdownOption.value;
       dropdownTypeModalAdd.close();
     });
@@ -468,7 +466,7 @@ const modalAdd = (() => {
   const $titleYear = document.querySelector('.modal-add .month');
   const $titleMonth = document.querySelector('.modal-add .date');
   const $itemDate = document.querySelector('.modal-add .modal-input-date');
-  const isAdd = true;
+
   return {
     toggle(itemDate) {
       isActive = !isActive;
@@ -582,24 +580,30 @@ document.querySelector('.calendar-dates').addEventListener('click', e => {
 // 아이템 추가
 document.querySelector('.modal-add').addEventListener('submit', e => {
   e.preventDefault();
-  const itemDate = e.currentTarget.itemDate.value;
-  const itemCategory = e.currentTarget.itemCategory.value;
-  const itemType = e.currentTarget.itemType.value;
-  const itemContent = e.currentTarget.itemContent.value;
 
-  addDataArray(itemDate, itemCategory, itemType, itemContent);
-  addDataDomTree(itemDate, itemCategory, itemType, itemContent);
+  const newItem = {
+    date: e.currentTarget.itemDate.value,
+    category: e.currentTarget.itemCategory.value,
+    type: e.currentTarget.itemType.value,
+    content: e.currentTarget.itemContent.value
+  };
+
+  addDataArray(newItem);
+  addDataDomTree(newItem);
 });
 
+// 아이템 수정
 document.querySelector('.modal-edit').addEventListener('submit', e => {
   e.preventDefault();
-  console.log(e.currentTarget.itemId.value);
-  const itemId = e.currentTarget.itemId.value;
-  const itemDate = e.currentTarget.itemDate.value;
-  const itemCategory = e.currentTarget.itemCategory.value;
-  const itemType = e.currentTarget.itemType.value;
-  const itemContent = e.currentTarget.itemContent.value;
 
-  modifyDataArray(itemId, itemDate, itemCategory, itemType, itemContent);
-  modifyDataDOM(itemId, itemDate, itemCategory, itemType, itemContent);
+  const editItem = {
+    id: e.currentTarget.itemId.value,
+    date: e.currentTarget.itemDate.value,
+    category: e.currentTarget.itemCategory.value,
+    type: e.currentTarget.itemType.value,
+    content: e.currentTarget.itemContent.value
+  };
+
+  modifyDataArray(editItem);
+  modifyDataDOM(editItem);
 });
