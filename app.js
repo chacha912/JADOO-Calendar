@@ -243,6 +243,11 @@ data = [
 
 const $calendarDates = document.querySelector('.calendar');
 
+document.documentElement.style.setProperty(
+  '--scroll-width',
+  $calendarDates.offsetWidth - $calendarDates.clientWidth + 'px'
+);
+
 // closest 커스텀 함수
 const closest = ($startElem, targetClass, endClass) => {
   let elem = $startElem;

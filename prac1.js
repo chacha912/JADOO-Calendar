@@ -6,10 +6,11 @@ const dayTranslate = day => (day === 0 ? 6 : day - 1);
 
 const getCustomDate = (year, month) => {
   const firstDay = dayTranslate(new Date(year, month - 1).getDay());
+  const firstDate = new Date(year, month - 1, 1).getDate();
   const lastDate = new Date(year, month, 0).getDate();
   const lastDay = dayTranslate(new Date(year, month, 0).getDay());
   const lastMonthDate = new Date(year, month - 1, 0).getDate();
-  return { firstDay, lastDate, lastDay, lastMonthDate };
+  return { firstDate, firstDay, lastDate, lastDay, lastMonthDate };
 };
 
 const convertDateToString = (year, month, date) => {
@@ -25,7 +26,6 @@ const calendar = (() => {
   const $calendarGrid = document.querySelector('.calendar-dates');
   const $calendarYear = document.querySelector('.nav-year');
   const $calendarMonth = document.querySelector('.nav-month');
-  const $standards = document.querySelectorAll('.standard');
 
   const dateObj = new Date();
   const year = dateObj.getFullYear();
@@ -34,47 +34,10 @@ const calendar = (() => {
   let currentMonth = month;
   let currentYear = year;
   let firstYear = currentYear; // 렌더링 된 가장 마지막 년
-  let lastYear = currentYear; // " 월
+  let lastYear = currentYear;
   let firstMonth = currentMonth; // 렌더링 된 가장 첫번째 년
   let lastMonth = currentMonth;
 
-  const io = new IntersectionObserver(
-    entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          $calendarYear.textContent =
-            entry.target.children[0].children[0].textContent + '';
-          $calendarMonth.textContent =
-            entry.target.children[0].children[1].textContent + '';
-          const { lastDate } = getCustomDate(
-            +entry.target.children[0].children[0].textContent,
-            +entry.target.children[0].children[1].textContent
-          );
-          let node = entry.target.children[0];
-          for (let date = 0; date < lastDate; date += 1) {
-            node.classList.remove('unactive');
-            const nextNode = node;
-            node = nextNode.parentElement.nextElementSibling.children[0];
-          }
-        } else {
-          const { lastDate } = getCustomDate(
-            +entry.target.children[0].children[0].textContent,
-            +entry.target.children[0].children[1].textContent
-          );
-          let node = entry.target.children[0];
-          for (let date = 0; date < lastDate; date += 1) {
-            node.classList.add('unactive');
-            const nextNode = node;
-            node = nextNode.parentElement.nextElementSibling.children[0];
-          }
-        }
-      });
-    },
-    {
-      root: $calendar,
-      rootMargin: '0% 0px -50% 0px'
-    }
-  );
   const itemControllerInHTML = () => `
     <button class="item-control-btn" aria-label="아이템컨트롤러">
       <span class="icon icon-control"></span>
@@ -98,12 +61,14 @@ const calendar = (() => {
     let temp = '';
     for (let i = firstDay - 1; i >= 0; i -= 1) {
       temp += `
-            <div class="calendar-date" data-date=${convertDateToString(
-              currentYear,
-              currentMonth - 1,
-              i
-            )}>
-            <span class="calendar-date-txt unactive">${lastMonthDate - i}</span>
+            <div class="calendar-date ${
+              i % 7 === 0 ? 'standard' : ''
+            } unactive" data-date=${convertDateToString(
+        currentYear,
+        currentMonth - 1,
+        i
+      )}>
+            <span class="calendar-date-txt">${lastMonthDate - i}</span>
             <button class="item-add-btn" aria-label="${currentYear}년 ${currentMonth} 월 ${
         lastMonthDate - i
       }일 아이템 추가"><span class="icon icon-add"></span></button>
@@ -168,7 +133,7 @@ const calendar = (() => {
           year === currentYear && month === currentMonth && date === i
             ? 'today'
             : ''
-        } ${i === 1 ? 'standard' : ''}"  data-date=${convertDateToString(
+        } ${i % 7 === 0 ? 'standard' : ''}"  data-date=${convertDateToString(
         currentYear,
         currentMonth,
         i
@@ -176,7 +141,7 @@ const calendar = (() => {
         <span class="calendar-date-txt">${
           i === 1 ? currentMonth + '. ' + i : i
         } ${
-        i === 1
+        i % 7 === 0
           ? `<span class="--hide">${currentYear}</span><span class="--hide">${currentMonth}</span>`
           : ''
       }</span>
@@ -236,12 +201,16 @@ const calendar = (() => {
     for (let i = 1; i <= 6 - lastDay; i += 1) {
       temp += `
         <div class="calendar-date ${
-          i === 1 ? 'standard' : ''
-        }" data-date=${convertDateToString(currentYear, currentMonth + 1, i)}>
-        <span class="calendar-date-txt unactive">${
+          i % 7 === 0 ? 'standard' : ''
+        } unactive" data-date=${convertDateToString(
+        currentYear,
+        currentMonth + 1,
+        i
+      )}>
+        <span class="calendar-date-txt">${
           i === 1 ? currentMonth + 1 + '. ' + i : i
         } ${
-        i === 1
+        i % 7 === 0
           ? `<span class="--hide">${
               currentMonth + 1 > 12 ? currentYear + 1 : currentYear
             }</span><span class="--hide">${
@@ -316,12 +285,12 @@ const calendar = (() => {
     for (let i = 8 - firstDay === 8 ? 1 : 8 - firstDay; i <= lastDate; i += 1) {
       temp += `
           <div class="calendar-date ${
-            i === 1 ? 'standard' : ''
-          } " data-date=${convertDateToString(lastYear, lastMonth, i)}>
-          <span class="calendar-date-txt unactive"> ${
+            i % 7 === 0 ? 'standard' : ''
+          } unactive" data-date=${convertDateToString(lastYear, lastMonth, i)}>
+          <span class="calendar-date-txt"> ${
             i === 1 ? lastMonth + '. ' + i : i
           } ${
-        i === 1
+        i % 7 === 0
           ? `<span class="--hide">${lastYear}</span><span class="--hide">${lastMonth}</span>`
           : ''
       }</span>
@@ -339,7 +308,7 @@ const calendar = (() => {
                 // eslint-disable-next-line no-loop-func
                 .reduce((acc, item) => {
                   acc +=
-                    item.type === '1'
+                    item.type === 'todo'
                       ? `
                           <li class="item item-todo" data-id=${item.id}>
                               <input
@@ -352,18 +321,18 @@ const calendar = (() => {
                                   )}-${item.id}"
                               />
                               <span class="item-todo-chkicon"></span>
-                              <label for="item-${convertDateToString(
+                              <label class="item-todo-txt" for="item-${convertDateToString(
                                 lastYear,
                                 lastMonth,
                                 i
-                              )}-${item.id}" class="item-todo-txt" >
+                              )}-${item.id}">
                                   ${item.content}
                               </label>
                               ${itemControllerInHTML()}
                           </li>`
                       : `
                       <li class="item item-todo" data-id=${item.id}>
-                          <p class="item-post-txt" id="item-${convertDateToString(
+                          <p class="item-post-txt" for="item-${convertDateToString(
                             lastYear,
                             lastMonth,
                             i
@@ -383,12 +352,16 @@ const calendar = (() => {
     for (let i = 1; i <= 6 - lastDay; i += 1) {
       temp += `
           <div class="calendar-date ${
-            i === 1 ? 'standard' : ''
-          } " data-date=${convertDateToString(lastYear, lastMonth + 1, i)}>
-          <span class="calendar-date-txt unactive"> ${
+            i % 7 === 0 ? 'standard' : ''
+          } unactive" data-date=${convertDateToString(
+        lastYear,
+        lastMonth + 1,
+        i
+      )}>
+          <span class="calendar-date-txt"> ${
             i === 1 ? (lastMonth >= 12 ? 0 : lastMonth) + 1 + '. ' + i : i
           } ${
-        i === 1
+        i % 7 === 0
           ? `<span class="--hide">${
               lastMonth + 1 > 12 ? lastYear + 1 : lastYear
             }</span><span class="--hide">${
@@ -413,7 +386,7 @@ const calendar = (() => {
                 // eslint-disable-next-line no-loop-func
                 .reduce((acc, item) => {
                   acc +=
-                    item.type === '1'
+                    item.type === 'todo'
                       ? `
                           <li class="item item-todo" data-id=${item.id}>
                               <input
@@ -426,18 +399,18 @@ const calendar = (() => {
                                   )}-${item.id}"
                               />
                               <span class="item-todo-chkicon"></span>
-                              <label for="item-${convertDateToString(
+                              <label class="item-todo-txt" for="item-${convertDateToString(
                                 lastYear,
                                 lastMonth,
                                 i
-                              )}-${item.id}" class="item-todo-txt" >
+                              )}-${item.id}">
                                   ${item.content}
                               </label>
                               ${itemControllerInHTML()}
                           </li>`
                       : `
                       <li class="item item-todo" data-id=${item.id}>
-                          <p class="item-post-txt" id="item-${convertDateToString(
+                          <p class="item-post-txt" for="item-${convertDateToString(
                             lastYear,
                             lastMonth,
                             i
@@ -463,20 +436,26 @@ const calendar = (() => {
       firstYear,
       firstMonth
     );
-
     let temp = '';
+
     for (let i = firstDay - 1; i >= 0; i -= 1) {
       temp += `
-          <div class="calendar-date " data-date=${convertDateToString(
-            firstYear,
-            firstMonth - 1,
-            lastMonthDate - i
-          )}>
-          <span class="calendar-date-txt unactive"> ${
+          <div class="calendar-date ${
+            i % 7 === 0 ? 'standard' : ''
+          } unactive" data-date=${convertDateToString(
+        firstYear,
+        firstMonth - 1,
+        lastMonthDate - i
+      )}>
+          <span class="calendar-date-txt"> ${
             lastMonthDate - i === 1
               ? firstMonth + '.' + lastMonthDate - i
               : lastMonthDate - i
-          }
+          } ${
+        lastMonthDate - (i % 7) === 0
+          ? `<span class="--hide">${firstYear}</span><span class="--hide">${firstMonth}</span>`
+          : ''
+      }
           </span>
           <button class="item-add-btn" aria-label="${firstYear}년 ${firstMonth} 월 ${
         lastMonthDate - i === 1
@@ -494,7 +473,7 @@ const calendar = (() => {
                 // eslint-disable-next-line no-loop-func
                 .reduce((acc, item) => {
                   acc +=
-                    item.type === '1'
+                    item.type === 'todo'
                       ? `
                           <li class="item item-todo">
                               <input
@@ -507,18 +486,18 @@ const calendar = (() => {
                                   )}-${item.id}"
                               />
                               <span class="item-todo-chkicon"></span>
-                              <label for="item-${convertDateToString(
+                              <label class="item-todo-txt" for="item-${convertDateToString(
                                 firstYear,
                                 firstMonth,
                                 i
-                              )}-${item.id}" class="item-todo-txt" >
+                              )}-${item.id}">
                                   ${item.content}
                               </label>
                               ${itemControllerInHTML()}
                           </li>`
                       : `
                       <li class="item item-todo">
-                          <p class="item-post-txt" id="item-${convertDateToString(
+                          <p class="item-post-txt" for="item-${convertDateToString(
                             firstYear,
                             firstMonth,
                             i
@@ -532,21 +511,29 @@ const calendar = (() => {
           </ul>
           </div>`;
     }
-    for (let i = 1; i <= lastDate - (lastDay === 6 ? 0 : lastDay) - 1; i += 1) {
+    for (
+      let i = 1;
+      i <= lastDate - (lastDay === 6 ? -1 : lastDay) - 1;
+      i += 1
+    ) {
       temp += `
           <div class="calendar-date ${
-            i === 1 ? 'standard' : ''
-          } " data-date=${convertDateToString(firstYear, firstMonth, i)}>
-          <span class="calendar-date-txt unactive">  ${
+            i % 7 === 0 ? 'standard' : ''
+          } unactive" data-date=${convertDateToString(
+        firstYear,
+        firstMonth,
+        i
+      )}>
+          <span class="calendar-date-txt">  ${
             i === 1 ? firstMonth + '.' + i : i
           }
           ${
-            i === 1
-              ? `<span class="hidden">${firstYear}</span><span class="hidden">${firstMonth}</span>`
+            i % 7 === 0
+              ? `<span class="--hide">${firstYear}</span><span class="--hide">${firstMonth}</span>`
               : ''
           }</span>
           </span>
-          <button class="item-add-btn" aria-label="${firstYear}년 ${firstMonth} 월 $${
+          <button class="item-add-btn" aria-label="${firstYear}년 ${firstMonth} 월 ${
         i === 1 ? firstMonth + '.' + i : i
       }일 아이템 추가"><span class="icon icon-add"></span></button>
           <ul class="items">
@@ -560,7 +547,7 @@ const calendar = (() => {
                 // eslint-disable-next-line no-loop-func
                 .reduce((acc, item) => {
                   acc +=
-                    item.type === '1'
+                    item.type === 'todo'
                       ? `
                           <li class="item item-todo">
                               <input
@@ -573,17 +560,17 @@ const calendar = (() => {
                                   )}-${item.id}"
                               />
                               <span class="item-todo-chkicon"></span>
-                              <label for="item-${convertDateToString(
+                              <label class="item-todo-txt" for="item-${convertDateToString(
                                 firstYear,
                                 firstMonth,
                                 i
-                              )}-${item.id}" class="item-todo-txt" >
+                              )}-${item.id}">
                                   ${item.content}
                               </label>
                           </li>`
                       : `
                       <li class="item item-todo">
-                          <p class="item-post-txt" id="item-${convertDateToString(
+                          <p class="item-post-txt" for="item-${convertDateToString(
                             firstYear,
                             firstMonth,
                             i
@@ -614,6 +601,7 @@ const calendar = (() => {
       }
     };
   })();
+
   return {
     renderCalendar: () => {
       // 전체 렌더
@@ -623,13 +611,52 @@ const calendar = (() => {
       $calendarYear.textContent = year + '';
       $calendarMonth.textContent = month + '';
     },
-    observe: () => {
-      [...$standards].forEach($standard => {
-        io.observe($standard);
+    observe: io => {
+      throttling.throttle(() => {
+        const $standards = document.querySelectorAll('.standard');
+        [...$standards].forEach($standard => {
+          io.observe($standard);
+        });
       });
     },
+    returnInitIO: new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          // 기준 점의 날짜를 가져와서 lastDate - 기준 날짜
+          // firstDate + 기준 날짜
+          if (entry.isIntersecting) {
+            const allUnActiveElements =
+              document.querySelectorAll('.calendar-date');
+            allUnActiveElements.forEach(item => item.classList.add('unactive'));
+            [$calendarYear.textContent, $calendarMonth.textContent] =
+              entry.target.dataset.date.split('-');
+            const { firstDate, lastDate } = getCustomDate(
+              +$calendarYear.textContent,
+              +$calendarMonth.textContent
+            );
+            const [, , standardDate] = entry.target.dataset.date.split('-');
+            let node = entry.target;
+            for (let date = 1; date < firstDate + +standardDate; date += 1) {
+              node.classList.remove('unactive');
+              const nextNode = node;
+              node = nextNode.previousElementSibling;
+            }
+            node = entry.target;
+
+            for (let date = 0; date < lastDate - +standardDate + 1; date += 1) {
+              node.classList.remove('unactive');
+              const nextNode = node;
+              node = nextNode.nextElementSibling;
+            }
+          }
+        });
+      },
+      {
+        root: $calendar,
+        rootMargin: '-49% 0px -49% 0px'
+      }
+    ),
     getCalendarElement: () => $calendar,
-    getIntersectionObserver: () => io,
     getInitCalendar: initCalendar,
     getChangeNextMonth: changeNextMonth,
     getItemControllerInHTML: itemControllerInHTML,
@@ -648,7 +675,7 @@ const calendar = (() => {
       $calendarYear.textContent = year + '';
       $calendarMonth.textContent = month + '';
     },
-    scroll: () => {
+    scroll: io => {
       throttling.throttle(() => {
         if ($calendar.scrollTop < 1) {
           changePrevMonth();
@@ -672,16 +699,17 @@ const calendar = (() => {
     }
   };
 })();
-
 // 코드 실행 부분
 calendar.renderCalendar();
+const io = calendar.returnInitIO;
+calendar.observe(io);
 
 const $calendar = calendar.getCalendarElement();
 const $todayBtn = document.querySelector('.move-today-btn');
 const todayPosition = document.querySelector('.today').getBoundingClientRect();
 
 calendar.changeToToday(todayPosition);
-$calendar.addEventListener('scroll', () => calendar.scroll());
+$calendar.addEventListener('scroll', () => calendar.scroll(io));
 $todayBtn.addEventListener('click', () =>
   calendar.changeToToday(todayPosition)
 );
