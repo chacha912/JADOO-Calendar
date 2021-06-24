@@ -1,4 +1,3 @@
-/* eslint-disable no-loop-func */
 const ITEM_TYPE = [
   { id: 1, name: '✅ 투두리스트' },
   { id: 2, name: '📃 글' }
@@ -248,6 +247,11 @@ document.documentElement.style.setProperty(
   $calendarDates.offsetWidth - $calendarDates.clientWidth + 'px'
 );
 
+document.documentElement.style.setProperty(
+  '--scroll-width',
+  $calendarDates.offsetWidth - $calendarDates.clientWidth + 'px'
+);
+
 // closest 커스텀 함수
 const closest = ($startElem, targetClass, endClass) => {
   let elem = $startElem;
@@ -364,29 +368,17 @@ const calendar = (() => {
                              <input
                                  class="item-todo-chkbox"
                                  type="checkbox"
-                                 id="item-${convertDateToString(
-                                   currentYear,
-                                   currentMonth,
-                                   i
-                                 )}-${item.id}"
+                                 id="item${item.id}"
                              />
                              <span class="item-todo-chkicon"></span>
-                             <label for="item-${convertDateToString(
-                               currentYear,
-                               currentMonth,
-                               i
-                             )}-${item.id}" class="item-todo-txt" >
+                             <label for="item${item.id}" class="item-todo-txt" >
                                  ${item.content}
                              </label>
                              ${itemControllerInHTML()}
                          </li>`
                      : `
                      <li class="item item-todo data-id=${item.id}">
-                         <p class="item-post-txt" id="item-${convertDateToString(
-                           currentYear,
-                           currentMonth,
-                           i
-                         )}-${item.id}">
+                         <p class="item-post-txt" id="item${item.id}">
                              ${item.content}
                          </p>
                        ${itemControllerInHTML()}
@@ -440,29 +432,17 @@ const calendar = (() => {
                              <input
                                  class="item-todo-chkbox"
                                  type="checkbox"
-                                 id="item-${convertDateToString(
-                                   currentYear,
-                                   currentMonth,
-                                   i
-                                 )}-${item.id}"
+                                 id="item${item.id}"
                              />
                              <span class="item-todo-chkicon"></span>
-                             <label for="item-${convertDateToString(
-                               currentYear,
-                               currentMonth,
-                               i
-                             )}-${item.id}" class="item-todo-txt" >
+                             <label for="item${item.id}" class="item-todo-txt" >
                                  ${item.content}
                              </label>
                            ${itemControllerInHTML()}
                          </li>`
                      : `
                      <li class="item item-todo" data-id=${item.id}>
-                         <p class="item-post-txt" id="item-${convertDateToString(
-                           currentYear,
-                           currentMonth,
-                           i
-                         )}-${item.id}">
+                         <p class="item-post-txt" id="item${item.id}">
                              ${item.content}
                          </p>
                          ${itemControllerInHTML()}
@@ -517,29 +497,17 @@ const calendar = (() => {
                              <input
                                  class="item-todo-chkbox"
                                  type="checkbox"
-                                 id="item-${convertDateToString(
-                                   currentYear,
-                                   currentMonth,
-                                   i
-                                 )}-${item.id}"
+                                 id="item${item.id}"
                              />
                              <span class="item-todo-chkicon"></span>
-                             <label for="item-${convertDateToString(
-                               currentYear,
-                               currentMonth,
-                               i
-                             )}-${item.id} class="item-todo-txt" ">
+                             <label for="item${item.id} class="item-todo-txt" ">
                                  ${item.content}
                              </label>
                              ${itemControllerInHTML()}
                          </li>`
                      : `
                      <li class="item item-todo" data-id=${item.id}>
-                         <p class="item-post-txt" id="item-${convertDateToString(
-                           currentYear,
-                           currentMonth,
-                           i
-                         )}-${item.id}">
+                         <p class="item-post-txt" id="item${item.id}">
                              ${item.content}
                          </p>
                          ${itemControllerInHTML()}
@@ -594,29 +562,19 @@ const calendar = (() => {
                                <input
                                    class="item-todo-chkbox"
                                    type="checkbox"
-                                   id="item-${convertDateToString(
-                                     lastYear,
-                                     lastMonth,
-                                     i
-                                   )}-${item.id}"
+                                   id="item${item.id}"
                                />
                                <span class="item-todo-chkicon"></span>
-                               <label class="item-todo-txt" for="item-${convertDateToString(
-                                 lastYear,
-                                 lastMonth,
-                                 i
-                               )}-${item.id}">
+                               <label class="item-todo-txt" for="item${
+                                 item.id
+                               }">
                                    ${item.content}
                                </label>
                                ${itemControllerInHTML()}
                            </li>`
                        : `
                        <li class="item item-todo" data-id=${item.id}>
-                           <p class="item-post-txt" for="item-${convertDateToString(
-                             lastYear,
-                             lastMonth,
-                             i
-                           )}-${item.id}">
+                           <p class="item-post-txt" for="item${item.id}">
                                ${item.content}
                            </p>
                            ${itemControllerInHTML()}
@@ -674,29 +632,19 @@ const calendar = (() => {
                                <input
                                    class="item-todo-chkbox"
                                    type="checkbox"
-                                   id="item-${convertDateToString(
-                                     lastYear,
-                                     lastMonth,
-                                     i
-                                   )}-${item.id}"
+                                   id="item${item.id}"
                                />
                                <span class="item-todo-chkicon"></span>
-                               <label class="item-todo-txt" for="item-${convertDateToString(
-                                 lastYear,
-                                 lastMonth,
-                                 i
-                               )}-${item.id}">
+                               <label class="item-todo-txt" for="item${
+                                 item.id
+                               }">
                                    ${item.content}
                                </label>
                                ${itemControllerInHTML()}
                            </li>`
                        : `
                        <li class="item item-todo" data-id=${item.id}>
-                           <p class="item-post-txt" for="item-${convertDateToString(
-                             lastYear,
-                             lastMonth,
-                             i
-                           )}-${item.id}">
+                           <p class="item-post-txt" for="item${item.id}">
                                ${item.content}
                            </p>
                            ${itemControllerInHTML()}
@@ -763,29 +711,19 @@ const calendar = (() => {
                                <input
                                    class="item-todo-chkbox"
                                    type="checkbox"
-                                   id="item-${convertDateToString(
-                                     firstYear,
-                                     firstMonth,
-                                     i
-                                   )}-${item.id}"
+                                   id="item${item.id}"
                                />
                                <span class="item-todo-chkicon"></span>
-                               <label class="item-todo-txt" for="item-${convertDateToString(
-                                 firstYear,
-                                 firstMonth,
-                                 i
-                               )}-${item.id}">
+                               <label class="item-todo-txt" for="item${
+                                 item.id
+                               }">
                                    ${item.content}
                                </label>
                                ${itemControllerInHTML()}
                            </li>`
                        : `
                        <li class="item item-todo">
-                           <p class="item-post-txt" for="item-${convertDateToString(
-                             firstYear,
-                             firstMonth,
-                             i
-                           )}-${item.id}">
+                           <p class="item-post-txt" for="item${item.id}">
                                ${item.content}
                            </p>
                        </li>
@@ -829,8 +767,8 @@ const calendar = (() => {
                    item =>
                      item.date === convertDateToString(firstYear, firstMonth, i)
                  )
-                 // eslint-disable-next-line no-loop-func
                  .reduce(
+                   // eslint-disable-next-line no-loop-func
                    (acc, item) =>
                      acc + item.type === 'todo'
                        ? `
@@ -838,28 +776,16 @@ const calendar = (() => {
                                <input
                                    class="item-todo-chkbox"
                                    type="checkbox"
-                                   id="item-${convertDateToString(
-                                     firstYear,
-                                     firstMonth,
-                                     i
-                                   )}-${item.id}"
+                                   id="item${item.id}"
                                />
                                <span class="item-todo-chkicon"></span>
-                               <label class="item-todo-txt" for="item-${convertDateToString(
-                                 firstYear,
-                                 firstMonth,
-                                 i
-                               )}-${item.id}">
+                               <label class="item-todo-txt" for="item${item.id}">
                                    ${item.content}
                                </label>
                            </li>`
                        : `
                        <li class="item item-todo">
-                           <p class="item-post-txt" for="item-${convertDateToString(
-                             firstYear,
-                             firstMonth,
-                             i
-                           )}-${item.id}">
+                           <p class="item-post-txt" for="item${item.id}">
                                ${item.content}
                            </p>
                            ${itemControllerInHTML()}
@@ -969,10 +895,9 @@ const calendar = (() => {
       initCalendar();
       changeNextMonth();
       changePrevMonth();
-
       $calendar.scrollTo(
         0,
-        $lastStandard.getBoundingClientRect().top + $calendar.clientHeight
+        $lastStandard.getBoundingClientRect().top + $calendar.clientHeight * 1.4
       );
       $calendarYear.textContent = currentYear + '';
       $calendarMonth.textContent =
@@ -985,6 +910,7 @@ const calendar = (() => {
       lastYear = year;
       firstMonth = currentMonth;
       lastMonth = currentMonth;
+      setCurrentYearMonth(year, month);
       initCalendar();
       changeNextMonth();
       changePrevMonth();
@@ -1377,7 +1303,7 @@ const addDataArray = ({ date, category, type, content }) => {
   ];
 };
 
-const addDataDomTree = ({ date, type, content }) => {
+const addDataDomTree = ({ date, type, content, category }) => {
   const dates = [...document.querySelector('.calendar-dates').children];
   const $date = dates.find(item => item.dataset.date === date);
 
@@ -1387,23 +1313,28 @@ const addDataDomTree = ({ date, type, content }) => {
              <input
                  class="item-todo-chkbox"
                  type="checkbox"
-                 id="item-${date}-${nextDataId}"
+                 id="item${nextDataId}"
              />
              <span class="item-todo-chkicon"></span>
-             <label for="item-${date}-${nextDataId}" class="item-todo-txt" >
+             <label for="item${nextDataId}" class="item-todo-txt" >
                  ${content}
              </label>
              ${calendar.getItemControllerInHTML()}
          </li>`
       : `
          <li class="item item-todo" data-id=${nextDataId}>
-             <p class="item-post-txt" id="item-${date}-${nextDataId}">
+             <p class="item-post-txt" id="item${nextDataId}">
                  ${content}
              </p>
              ${calendar.getItemControllerInHTML()}
          </li>`;
 
-  $date.lastElementChild.insertAdjacentHTML('beforeend', innerDate);
+  if (category === currentCategory)
+    $date.lastElementChild.insertAdjacentHTML('beforeend', innerDate);
+  else {
+    currentCategory = category;
+    calendar.renderCalendarDateWithSavedDate();
+  }
 };
 
 const deleteDataArray = itemId => {
@@ -1425,8 +1356,7 @@ const modifyDataArray = ({ id, date, content, order }) => {
 };
 
 const modifyDataDOM = ({ id, date, type, content }) => {
-  const $modifyItem = document.getElementById(`item-${date}-${id}`);
-  console.log($modifyItem, `item-${date}-${id}`);
+  const $modifyItem = document.getElementById(`item${id}`);
 
   if (type === '1') {
     $modifyItem.nextElementSibling.nextElementSibling.textContent = content;
