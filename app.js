@@ -3,6 +3,7 @@ const ITEM_TYPE = [
   { id: 2, name: '📃 글' }
 ];
 
+// state
 let currentCategory = '1';
 let nextDataId = 31;
 
@@ -242,16 +243,6 @@ let data = [
 
 const $calendarDates = document.querySelector('.calendar');
 
-document.documentElement.style.setProperty(
-  '--scroll-width',
-  $calendarDates.offsetWidth - $calendarDates.clientWidth + 'px'
-);
-
-document.documentElement.style.setProperty(
-  '--scroll-width',
-  $calendarDates.offsetWidth - $calendarDates.clientWidth + 'px'
-);
-
 // closest 커스텀 함수
 const closest = ($startElem, targetClass, endClass) => {
   let elem = $startElem;
@@ -276,11 +267,13 @@ const getCustomDate = (year, month) => {
   return { firstDate, firstDay, lastDate, lastDay, lastMonthDate };
 };
 
-const convertDateToString = (year, month, date) => {
+const convertDateToString = (year, month, date, hasDash = true) => {
   const newYear = '' + year;
   const newMonth = month < 10 ? '0' + month : '' + month;
   const newDate = date < 10 ? '0' + date : '' + date;
-  return newYear + '-' + newMonth + '-' + newDate;
+
+  if (hasDash) return newYear + '-' + newMonth + '-' + newDate;
+  return newYear + newMonth + newDate;
 };
 
 const calendar = (() => {
@@ -345,7 +338,12 @@ const calendar = (() => {
         i
       )}>
              <span class="calendar-date-txt">${lastMonthDate - i}</span>
-             <button class="item-add-btn" aria-label="${currentYear}년 ${currentMonth} 월 ${
+             <button class="item-add-btn" id="${convertDateToString(
+               currentYear,
+               currentMonth - 1,
+               i,
+               false
+             )}" aria-label="${currentYear}년 ${currentMonth} 월 ${
         lastMonthDate - i
       }일 아이템 추가"><span class="icon icon-add"></span></button>
              <ul class="items">
@@ -411,7 +409,12 @@ const calendar = (() => {
           ? `<span class="--hide">${currentYear}</span><span class="--hide">${currentMonth}</span>`
           : ''
       }</span>
-         <button class="item-add-btn" aria-label="${currentYear}년 ${currentMonth} 월 ${i}일 아이템 추가"><span class="icon icon-add"></span></button>
+         <button class="item-add-btn" id="${convertDateToString(
+           currentYear,
+           currentMonth,
+           i,
+           false
+         )}" aria-label="${currentYear}년 ${currentMonth} 월 ${i}일 아이템 추가"><span class="icon icon-add"></span></button>
          <ul class="items">
              ${data
                // eslint-disable-next-line no-loop-func
@@ -475,7 +478,12 @@ const calendar = (() => {
             }</span>`
           : ''
       }</span></span>
-         <button class="item-add-btn" aria-label="${currentYear}년 ${
+         <button class="item-add-btn" id="${convertDateToString(
+           currentYear,
+           currentMonth + 1,
+           i,
+           false
+         )}" aria-label="${currentYear}년 ${
         currentMonth + 1
       } 월 ${i}일 아이템 추가"><span class="icon icon-add"></span></button>
          <ul class="items">
@@ -541,7 +549,12 @@ const calendar = (() => {
           ? `<span class="--hide">${lastYear}</span><span class="--hide">${lastMonth}</span>`
           : ''
       }</span>
-           <button class="item-add-btn" aria-label="${lastYear}년 ${lastMonth} 월 ${
+           <button class="item-add-btn" id="${convertDateToString(
+             lastYear,
+             lastMonth,
+             i,
+             false
+           )}" aria-label="${lastYear}년 ${lastMonth} 월 ${
         i === 1 ? lastMonth + ',' + i : i
       }일 아이템 추가"><span class="icon icon-add"></span></button>
            <ul class="items">
@@ -609,9 +622,12 @@ const calendar = (() => {
           : ''
       }</span>
            </span>
-           <button class="item-add-btn" aria-label="${lastYear}년 ${
-        lastMonth + 1
-      } 월 ${
+           <button class="item-add-btn" id="${convertDateToString(
+             lastYear,
+             lastMonth + 1,
+             i,
+             false
+           )}" aria-label="${lastYear}년 ${lastMonth + 1} 월 ${
         i === 1 ? (lastMonth >= 12 ? 0 : lastMonth) + 1 + '. ' + i : i
       }일 아이템 추가"><span class="icon icon-add"></span></button>
            <ul class="items">
@@ -688,7 +704,12 @@ const calendar = (() => {
           : ''
       }
            </span>
-           <button class="item-add-btn" aria-label="${firstYear}년 ${firstMonth} 월 ${
+           <button class="item-add-btn" id="${convertDateToString(
+             firstYear,
+             firstMonth - 1,
+             lastMonthDate - i,
+             false
+           )}" aria-label="${firstYear}년 ${firstMonth} 월 ${
         lastMonthDate - i === 1
           ? firstMonth + '.' + lastMonthDate - i
           : lastMonthDate - i
@@ -755,7 +776,12 @@ const calendar = (() => {
                : ''
            }</span>
            </span>
-           <button class="item-add-btn" aria-label="${firstYear}년 ${firstMonth} 월 ${
+           <button class="item-add-btn" id="${convertDateToString(
+             firstYear,
+             firstMonth,
+             i,
+             false
+           )}" aria-label="${firstYear}년 ${firstMonth} 월 ${
         i === 1 ? firstMonth + '.' + i : i
       }일 아이템 추가"><span class="icon icon-add"></span></button>
            <ul class="items">
@@ -1203,6 +1229,7 @@ const dropdownCategoryMain = (() => {
 // 모달
 const modalAdd = (() => {
   let isActive = false;
+  let selectedDate;
 
   const $modal = document.querySelector('.modal-add');
   const $modalDim = document.querySelector('.modal-dim');
@@ -1212,6 +1239,9 @@ const modalAdd = (() => {
   const $itemContent = $modal.querySelector('.modal-input-txt');
 
   return {
+    isActive() {
+      return isActive;
+    },
     toggle(itemDate) {
       isActive = !isActive;
       $modal.classList.toggle('--show', isActive);
@@ -1223,12 +1253,14 @@ const modalAdd = (() => {
       $titleMonth.textContent = itemDate.slice(8, 10);
       $itemDate.value = itemDate;
       $itemContent.focus();
+      selectedDate = itemDate;
     },
     close() {
       isActive = false;
       $modal.classList.remove('--show');
       $modalDim.classList.remove('--show');
       document.body.classList.remove('modal-open');
+      document.getElementById(selectedDate.replaceAll('-', '')).focus();
     },
     reset() {
       const $itemCategoryBtn = $modal.querySelector('#modalAddCategoryBtn');
@@ -1253,6 +1285,9 @@ const modalEdit = (() => {
   const $itemId = $modal.querySelector('.modal-input-id');
 
   return {
+    isActive() {
+      return isActive;
+    },
     toggle({ id, date, category: categoryId, type: typeId, content }) {
       isActive = !isActive;
       $modal.classList.toggle('--show', isActive);
@@ -1286,6 +1321,22 @@ const modalEdit = (() => {
     }
   };
 })();
+
+const modalFocusTrap = (e, $firstFocusElem, $lastFocusElem) => {
+  if (e.key !== 'Tab') return;
+
+  // shift + tab
+  if (e.shiftKey && document.activeElement === $firstFocusElem) {
+    $lastFocusElem.focus();
+    e.preventDefault();
+    return;
+  }
+
+  if (document.activeElement === $lastFocusElem) {
+    $firstFocusElem.focus();
+    e.preventDefault();
+  }
+};
 
 const addDataArray = ({ date, category, type, content }) => {
   data = [
@@ -1594,6 +1645,28 @@ document.querySelector('.modal-edit').addEventListener('submit', e => {
   modifyDataArray(editItem);
   modifyDataDOM(editItem);
   modalEdit.close();
+});
+
+document.querySelector('.modal-add').addEventListener('keydown', e => {
+  modalFocusTrap(
+    e,
+    document.querySelector('.modal-add #modalAddCategoryBtn'),
+    document.querySelector('.modal-add .modal-close-btn')
+  );
+});
+
+document.querySelector('.modal-edit').addEventListener('keydown', e => {
+  modalFocusTrap(
+    e,
+    document.querySelector('.modal-edit #modalEditContent'),
+    document.querySelector('.modal-edit .modal-close-btn')
+  );
+});
+
+document.body.addEventListener('keyup', e => {
+  if (e.key !== 'Escape') return;
+  if (modalAdd.isActive()) modalAdd.close();
+  if (modalEdit.isActive()) modalEdit.close();
 });
 
 document.querySelector('.calendar-dates').addEventListener('click', e => {
