@@ -1005,7 +1005,7 @@ const calendar = (() => {
         }
         if (
           $calendar.scrollHeight - Math.ceil($calendar.scrollTop) <=
-          $calendar.clientHeight - 1
+          $calendar.clientHeight
         ) {
           changeNextMonth();
           const $standards = document.querySelectorAll('.standard');
@@ -1043,7 +1043,7 @@ const categoryUtil = (() => {
                 <input
                   type="text"
                   value="${category.name}"
-                  disabled
+                  readonly
                   class="dropdown-item-input"
                 />
                 <button class="category-delete-btn" aria-label="삭제">
@@ -1426,6 +1426,7 @@ const modifyDataArray = ({ id, date, content, order }) => {
 
 const modifyDataDOM = ({ id, date, type, content }) => {
   const $modifyItem = document.getElementById(`item-${date}-${id}`);
+  console.log($modifyItem, `item-${date}-${id}`);
 
   if (type === '1') {
     $modifyItem.nextElementSibling.nextElementSibling.textContent = content;
@@ -1574,6 +1575,7 @@ document.getElementById('mainCategoryBtn').addEventListener('click', () => {
 document
   .querySelector('#categoryMain .dropdown-menu')
   .addEventListener('click', e => {
+    console.log(e.target);
     const $dropdownOption = closest(
       e.target,
       'dropdown-option-icon',
