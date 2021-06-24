@@ -429,6 +429,35 @@ const categoryUtil = (() => {
           dropdownCategoryModalAdd.close();
         }
       });
+
+    document
+      .querySelector('.modal-edit .dropdown-category')
+      .addEventListener('click', e => {
+        e.stopPropagation();
+
+        const $targetCategoryBtn = closest(
+          e.target,
+          'dropdown-toggle',
+          'dropdown-category'
+        );
+        const $modalEditCategoryOption = closest(
+          e.target,
+          'dropdown-option',
+          'dropdown-category'
+        );
+
+        if ($targetCategoryBtn) {
+          dropdownCategoryModalEdit.toggle();
+          return;
+        }
+
+        if ($modalEditCategoryOption) {
+          $modalEditCategoryBtn.textContent =
+            $modalEditCategoryOption.textContent.trim();
+          $modalEditCategoryBtn.value = $modalEditCategoryOption.value;
+          dropdownCategoryModalEdit.close();
+        }
+      });
   };
 
   return {
@@ -591,11 +620,32 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   })();
 
+  const dropdownTypeModalEdit = (() => {
+    const $dropdown = document.querySelector(
+      '#modalEditTypeBtn + .dropdown-menu'
+    );
+
+    return {
+      toggle() {
+        $dropdown.classList.toggle('--show');
+      },
+      close() {
+        $dropdown.classList.remove('--show');
+      }
+    };
+  })();
+
   const $modalAddTypeBtn = document.getElementById('modalAddTypeBtn');
+  const $modalEditTypeBtn = document.getElementById('modalEditTypeBtn');
 
   $modalAddTypeBtn.addEventListener('click', e => {
     e.stopPropagation();
     dropdownTypeModalAdd.toggle();
+  });
+
+  $modalEditTypeBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    dropdownTypeModalEdit.toggle();
   });
 
   document
@@ -611,8 +661,29 @@ document.addEventListener('DOMContentLoaded', () => {
       dropdownTypeModalAdd.close();
     });
 
+  document
+    .querySelector('#modalEditTypeBtn + .dropdown-menu')
+    .addEventListener('click', e => {
+      e.stopPropagation();
+
+      const $dropdownOption = e.target;
+      if (!$dropdownOption.classList.contains('dropdown-option')) return;
+
+      $modalEditTypeBtn.textContent = $dropdownOption.textContent.trim();
+      $modalEditTypeBtn.value = $dropdownOption.value;
+      dropdownTypeModalEdit.close();
+    });
+
   document.querySelector('.modal-add').addEventListener('click', () => {
     [...document.querySelectorAll('.modal-add .dropdown-menu')].forEach(
+      $dropdown => {
+        $dropdown.classList.remove('--show');
+      }
+    );
+  });
+
+  document.querySelector('.modal-edit').addEventListener('click', () => {
+    [...document.querySelectorAll('.modal-edit .dropdown-menu')].forEach(
       $dropdown => {
         $dropdown.classList.remove('--show');
       }
@@ -624,6 +695,12 @@ document.addEventListener('DOMContentLoaded', () => {
     modalAdd.reset();
     modalEdit.close();
     [...document.querySelectorAll('.modal-add .dropdown-menu')].forEach(
+      $dropdown => {
+        $dropdown.classList.remove('--show');
+      }
+    );
+
+    [...document.querySelectorAll('.modal-edit .dropdown-menu')].forEach(
       $dropdown => {
         $dropdown.classList.remove('--show');
       }
