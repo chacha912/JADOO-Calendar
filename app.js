@@ -557,6 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         $dropdown.classList.remove('--show');
       }
     );
+
     [...document.querySelectorAll('.modal-edit .dropdown-menu')].forEach(
       $dropdown => {
         $dropdown.classList.remove('--show');
@@ -758,6 +759,7 @@ document.querySelector('.modal-edit').addEventListener('submit', e => {
   modifyDataDOM(editItem);
   modalEdit.close();
 });
+
 
 document.querySelector('.calendar-dates').addEventListener('click', e => {
   const $selectedControlBtn = closest(
