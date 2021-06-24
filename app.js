@@ -1872,6 +1872,46 @@ $calendarDates.addEventListener('mousedown', e => {
   document.addEventListener('mouseup', eventFunctions.mouseUpEvent);
 });
 
+$calendarDates.addEventListener('keyup', e => {
+  const key = e.key.replace('Arrow', '');
+  const { target } = e;
+  let nextDate;
+
+  if (
+    target.classList.contains('item-add-btn') &&
+    key.match(/Up|Down|Left|Right/)
+  ) {
+    const currYear = +target.id.slice(0, 4);
+    const currMonth = +target.id.slice(4, 6) - 1;
+    const currDate = +target.id.slice(6, 8);
+
+    switch (key) {
+      case 'Right':
+        nextDate = new Date(currYear, currMonth, currDate + 1);
+        break;
+      case 'Left':
+        nextDate = new Date(currYear, currMonth, currDate - 1);
+        break;
+      case 'Up':
+        nextDate = new Date(currYear, currMonth, currDate - 7);
+        break;
+      case 'Down':
+        nextDate = new Date(currYear, currMonth, currDate + 7);
+        break;
+      default:
+    }
+
+    nextDate = convertDateToString(
+      nextDate.getFullYear(),
+      nextDate.getMonth() + 1,
+      nextDate.getDate(),
+      false
+    );
+    e.preventDefault();
+    document.getElementById(nextDate).focus();
+  }
+});
+
 // 달력 코드
 calendar.renderCalendar();
 
