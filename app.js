@@ -751,6 +751,7 @@ const modalAdd = (() => {
       $titleYear.textContent = itemDate.slice(5, 7);
       $titleMonth.textContent = itemDate.slice(8, 10);
       $itemDate.value = itemDate;
+      $itemContent.focus();
     },
     close() {
       isActive = false;
@@ -777,7 +778,7 @@ const modalEdit = (() => {
   const $titleYear = $modal.querySelector('.month');
   const $titleMonth = $modal.querySelector('.date');
   const $itemDate = $modal.querySelector('.modal-input-date');
-  const $itemTextArea = $modal.querySelector('.modal-input-txt');
+  const $itemContent = $modal.querySelector('.modal-input-txt');
   const $itemId = $modal.querySelector('.modal-input-id');
 
   return {
@@ -792,7 +793,7 @@ const modalEdit = (() => {
       $titleYear.textContent = date.slice(5, 7);
       $titleMonth.textContent = date.slice(8, 10);
       $itemDate.value = date;
-      $itemTextArea.value = content;
+      $itemContent.value = content;
 
       const $categoryBtn = document.getElementById('modalEditCategoryBtn');
       const $typeBtn = document.getElementById('modalEditTypeBtn');
@@ -803,6 +804,8 @@ const modalEdit = (() => {
       $typeBtn.textContent = ITEM_TYPE.filter(
         type => type.id === +typeId
       )[0].name;
+
+      $itemContent.focus();
     },
     close() {
       isActive = false;
