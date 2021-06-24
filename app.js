@@ -1249,11 +1249,11 @@ const modalAdd = (() => {
       document.body.classList.toggle('modal-open', isActive);
 
       if (!isActive) return;
+      selectedDate = itemDate;
       $titleYear.textContent = itemDate.slice(5, 7);
       $titleMonth.textContent = itemDate.slice(8, 10);
       $itemDate.value = itemDate;
       $itemContent.focus();
-      selectedDate = itemDate;
     },
     close() {
       isActive = false;
@@ -1276,6 +1276,8 @@ const modalAdd = (() => {
 
 const modalEdit = (() => {
   let isActive = false;
+  let selectedDate;
+
   const $modal = document.querySelector('.modal-edit');
   const $modalDim = document.querySelector('.modal-dim');
   const $titleYear = $modal.querySelector('.month');
@@ -1295,6 +1297,8 @@ const modalEdit = (() => {
       document.body.classList.toggle('modal-open', isActive);
 
       if (!isActive) return;
+      selectedDate = date;
+
       $itemId.value = id;
       $titleYear.textContent = date.slice(5, 7);
       $titleMonth.textContent = date.slice(8, 10);
@@ -1318,6 +1322,8 @@ const modalEdit = (() => {
       $modal.classList.remove('--show');
       $modalDim.classList.remove('--show');
       document.body.classList.remove('modal-open');
+      document.getElementById(selectedDate.replaceAll('-', '')).focus();
+      console.log(document.getElementById(selectedDate.replaceAll('-', '')));
     }
   };
 })();
@@ -1538,14 +1544,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.querySelector('.modal-dim').addEventListener('click', () => {
-    modalAdd.close();
-    modalAdd.reset();
-    modalEdit.close();
-    [...document.querySelectorAll('.modal-add .dropdown-menu')].forEach(
-      $dropdown => {
-        $dropdown.classList.remove('--show');
-      }
-    );
+    if (modalAdd.isActive()) {
+      [...document.querySelectorAll('.modal-add .dropdown-menu')].forEach(
+        $dropdown => {
+          $dropdown.classList.remove('--show');
+        }
+      );
+      modalAdd.reset();
+      modalAdd.close();
+    }
+    if (modalEdit.isActive()) modalEdit.close();
   });
 });
 
