@@ -1133,6 +1133,9 @@ const categoryUtil = (() => {
         );
 
         if ($targetCategoryBtn) {
+          document
+            .querySelector('#modalAddTypeBtn + .dropdown-menu')
+            .classList.remove('--show');
           dropdownCategoryModalAdd.toggle();
           return;
         }
@@ -1323,7 +1326,6 @@ const modalEdit = (() => {
       $modalDim.classList.remove('--show');
       document.body.classList.remove('modal-open');
       document.getElementById(selectedDate.replaceAll('-', '')).focus();
-      console.log(document.getElementById(selectedDate.replaceAll('-', '')));
     }
   };
 })();
@@ -1412,7 +1414,7 @@ const modifyDataArray = ({ id, date, content, order }) => {
   if (order) modifiedData.order = order;
 };
 
-const modifyDataDOM = ({ id, date, type, content }) => {
+const modifyDataDOM = ({ id, type, content }) => {
   const $modifyItem = document.getElementById(`item${id}`);
 
   if (type === '1') {
@@ -1519,6 +1521,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $modalAddTypeBtn.addEventListener('click', e => {
     e.stopPropagation();
+    document
+      .querySelector('#modalAddCategoryBtn + .dropdown-menu')
+      .classList.remove('--show');
     dropdownTypeModalAdd.toggle();
   });
 
