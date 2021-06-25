@@ -238,6 +238,14 @@ let data = [
     date: '2021-06-17',
     content: 'JS UI 짝코딩',
     order: 1
+  },
+  {
+    id: 29,
+    type: '1',
+    category: '1',
+    date: '2021-06-25',
+    content: '자두 발표!! 😎😎😎',
+    order: 1
   }
 ];
 
@@ -1330,7 +1338,7 @@ const modalEdit = (() => {
   };
 })();
 
-const modalFocusTrap = (e, $firstFocusElem, $lastFocusElem) => {
+const trapModalFocus = (e, $firstFocusElem, $lastFocusElem) => {
   if (e.key !== 'Tab') return;
 
   // shift + tab
@@ -1661,7 +1669,7 @@ document.querySelector('.modal-edit').addEventListener('submit', e => {
 });
 
 document.querySelector('.modal-add').addEventListener('keydown', e => {
-  modalFocusTrap(
+  trapModalFocus(
     e,
     document.querySelector('.modal-add #modalAddCategoryBtn'),
     document.querySelector('.modal-add .modal-close-btn')
@@ -1669,7 +1677,7 @@ document.querySelector('.modal-add').addEventListener('keydown', e => {
 });
 
 document.querySelector('.modal-edit').addEventListener('keydown', e => {
-  modalFocusTrap(
+  trapModalFocus(
     e,
     document.querySelector('.modal-edit #modalEditContent'),
     document.querySelector('.modal-edit .modal-close-btn')

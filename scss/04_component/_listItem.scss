@@ -47,6 +47,10 @@
     top: 50%;
     right: 6px;
     transform: translateY(-50%);
+
+    &:focus {
+      opacity: 1;
+    }
   }
 
   &-util {
