@@ -250,6 +250,8 @@ let data = [
 ];
 
 const $calendarDates = document.querySelector('.calendar');
+const $modalAdd = document.querySelector('.modal-add');
+const $modalEdit = document.querySelector('.modal-edit');
 
 // closest 커스텀 함수
 const closest = ($startElem, targetClass, endClass) => {
@@ -261,6 +263,385 @@ const closest = ($startElem, targetClass, endClass) => {
     elem = elem.parentNode;
   }
   return elem;
+};
+
+// 카테고리
+const categoryUtil = (() => {
+  let nextId = 1;
+  let categories = [];
+
+  const $categoryMain = document.querySelector('#categoryMain .dropdown-menu');
+  const render = () => {
+    // 메인화면의 카테고리 변경
+    $categoryMain.innerHTML =
+      categories
+        .map(
+          category =>
+            `
+              <li
+                id="cateMain${category.id}"
+                class="dropdown-item dropdown-option-icon ${
+                  category.selected ? '--selected' : ''
+                }"
+                role="option"
+                data-cate-name="${category.name}"
+                data-cate-id=${category.id}
+              >
+                <input
+                  type="text"
+                  value="${category.name}"
+                  tabindex="-1"
+                  readonly
+                  class="dropdown-item-input"
+                />
+                <button class="category-delete-btn" aria-label="삭제">
+                  <span class="icon icon-delete-gray"></span>
+                </button>
+              </li>
+            `
+        )
+        .join('') +
+      `
+        <li class="dropdown-item dropdown-add">
+          <label for="newCategoryMain" class="a11y-hidden">새로운 카테고리명</label>
+          <input
+            type="text"
+            id="newCategoryMain"
+            class="category-add-input"
+            placeholder="카테고리명 입력"
+          />
+          <button class="category-add-btn" aria-label="추가">
+            <span class="icon icon-add-gray"></span>
+          </button>
+        </li>
+      `;
+
+    document.getElementById('newCategoryMain').addEventListener('keyup', e => {
+      if (e.key !== 'Enter') return;
+
+      const cateName = e.target.value.trim();
+      if (!cateName) return;
+      categoryUtil.add(cateName);
+      cateName.value = '';
+      document.getElementById('newCategoryMain').focus();
+    });
+
+    // 아이템추가창 카테고리 변경
+    document.querySelector('.modal-add .dropdown-category').innerHTML =
+      `
+      <span id="modalAddCategoryLabel" class="modal-input-label">카테고리 <span class="a11y-hidden">선택</span></span>
+      <button
+        type="button"
+        id="modalAddCategoryBtn"
+        class="dropdown-toggle"
+        name="itemCategory"
+        value="${categories[0].id}"
+        aria-labelledby="modalAddCategoryLabel modalAddCategoryBtn"
+        aria-haspopup="listbox"
+      >
+        ${categories[0].name}
+      </button>
+      <ul
+        class="dropdown-menu"
+        tabindex="-1"
+        role="listbox"
+        aria-labelledby="modalAddCategoryLabel"
+    >` +
+      categories
+        .map(
+          category =>
+            `
+              <li class="dropdown-item" role="option">
+                <button type="button" value="${category.id}" class="dropdown-option">
+                  ${category.name}
+                </button>
+              </li>
+            `
+        )
+        .join('') +
+      '</ul>';
+
+    // 아이템편집창 카테고리 변경
+    document.querySelector('.modal-edit .dropdown-category').innerHTML =
+      `
+      <span id="modalEditCategoryLabel" class="modal-input-label">카테고리 <span class="a11y-hidden">선택</span></span>
+      <button
+        type="button"
+        id="modalEditCategoryBtn"
+        class="dropdown-toggle --disabled"
+        name="itemCategory"
+        value="${categories[0].id}"
+        aria-labelledby="modalEditCategoryLabel modalEditCategoryBtn"
+        aria-haspopup="listbox"
+      >
+        ${categories[0].name}
+      </button>
+      <ul
+        class="dropdown-menu"
+        tabindex="-1"
+        role="listbox"
+        aria-labelledby="modalEditCategoryLabel"
+    >` +
+      categories
+        .map(
+          category =>
+            `
+              <li class="dropdown-item" role="option">
+                <button type="button" value="${category.id}" class="dropdown-option">
+                  ${category.name}
+                </button>
+              </li>
+            `
+        )
+        .join('') +
+      '</ul>';
+
+    const dropdownCategoryModalAdd = (() => {
+      const $dropdown = document.querySelector(
+        '#modalAddCategoryBtn + .dropdown-menu'
+      );
+      return {
+        toggle() {
+          $dropdown.classList.toggle('--show');
+        },
+        close() {
+          $dropdown.classList.remove('--show');
+        }
+      };
+    })();
+
+    const $modalAddCategoryBtn = document.getElementById('modalAddCategoryBtn');
+
+    document
+      .querySelector('.modal-add .dropdown-category')
+      .addEventListener('click', e => {
+        e.stopPropagation();
+
+        const $targetCategoryBtn = closest(
+          e.target,
+          'dropdown-toggle',
+          'dropdown-category'
+        );
+        const $modalAddCategoryOption = closest(
+          e.target,
+          'dropdown-option',
+          'dropdown-category'
+        );
+
+        if ($targetCategoryBtn) {
+          document
+            .querySelector('#modalAddTypeBtn + .dropdown-menu')
+            .classList.remove('--show');
+          dropdownCategoryModalAdd.toggle();
+          return;
+        }
+
+        if ($modalAddCategoryOption) {
+          $modalAddCategoryBtn.textContent =
+            $modalAddCategoryOption.textContent.trim();
+          $modalAddCategoryBtn.value = $modalAddCategoryOption.value;
+          dropdownCategoryModalAdd.close();
+        }
+      });
+  };
+
+  return {
+    chkLength() {
+      return categories.length;
+    },
+    getSelectedName() {
+      return categories.filter(category => category.selected)[0].name;
+    },
+    getFirstCategory() {
+      return categories[0];
+    },
+    getCategoryById(id) {
+      return categories.filter(category => category.id === +id)[0];
+    },
+    fetch(data) {
+      categories = data;
+      nextId = data.length + 1;
+      render();
+    },
+    add(cateName) {
+      categories = [
+        ...categories,
+        {
+          id: nextId,
+          name: cateName,
+          selected: false
+        }
+      ];
+      nextId += 1;
+      render();
+    },
+    remove(cateId) {
+      let chgSelectedIdx = 0;
+      let removeSelected = false;
+
+      categories.forEach((category, idx, { length }) => {
+        if (category.id === cateId) {
+          if (category.selected) removeSelected = true;
+          chgSelectedIdx = idx === length - 1 ? idx - 1 : idx + 1;
+        }
+      });
+
+      categories = removeSelected
+        ? categories
+            .map((category, idx) => {
+              if (idx === chgSelectedIdx) {
+                return { ...category, selected: true };
+              }
+              return category;
+            })
+            .filter(category => category.id !== cateId)
+        : categories.filter(category => category.id !== cateId);
+      render();
+    },
+    select(cateId) {
+      categories = categories.map(category => {
+        if (category.id === cateId) {
+          return { ...category, selected: true };
+        }
+        if (category.selected) {
+          return { ...category, selected: false };
+        }
+        return category;
+      });
+      render();
+    }
+  };
+})();
+
+const dropdownCategoryMain = (() => {
+  const $dropdown = document.querySelector('#categoryMain .dropdown-menu');
+  return {
+    toggle() {
+      $dropdown.classList.toggle('--show');
+    },
+    close() {
+      $dropdown.classList.remove('--show');
+    }
+  };
+})();
+
+// 모달
+const modalAdd = (() => {
+  let isActive = false;
+  let selectedDate;
+
+  const $modal = document.querySelector('.modal-add');
+  const $modalDim = document.querySelector('.modal-dim');
+  const $titleYear = $modal.querySelector('.month');
+  const $titleMonth = $modal.querySelector('.date');
+  const $itemDate = $modal.querySelector('.modal-input-date');
+  const $itemContent = $modal.querySelector('.modal-input-txt');
+
+  return {
+    isActive() {
+      return isActive;
+    },
+    toggle(itemDate) {
+      isActive = !isActive;
+      $modal.classList.toggle('--show', isActive);
+      $modalDim.classList.toggle('--show', isActive);
+      document.body.classList.toggle('modal-open', isActive);
+
+      if (!isActive) return;
+      selectedDate = itemDate;
+      const $categoryBtn = document.getElementById('modalAddCategoryBtn');
+      $categoryBtn.value = currentCategory;
+      $categoryBtn.textContent =
+        categoryUtil.getCategoryById(currentCategory).name;
+
+      $titleYear.textContent = itemDate.slice(5, 7);
+      $titleMonth.textContent = itemDate.slice(8, 10);
+      $itemDate.value = itemDate;
+      $itemContent.focus();
+    },
+    close() {
+      isActive = false;
+      $modal.classList.remove('--show');
+      $modalDim.classList.remove('--show');
+      document.body.classList.remove('modal-open');
+      document.getElementById(selectedDate.replaceAll('-', '')).focus();
+    },
+    reset() {
+      const $itemTypeBtn = $modal.querySelector('#modalAddTypeBtn');
+      $itemTypeBtn.value = ITEM_TYPE[0].id;
+      $itemTypeBtn.textContent = ITEM_TYPE[0].name;
+      $itemContent.value = '';
+    }
+  };
+})();
+
+const modalEdit = (() => {
+  let isActive = false;
+  let selectedDate;
+
+  const $modal = document.querySelector('.modal-edit');
+  const $modalDim = document.querySelector('.modal-dim');
+  const $titleYear = $modal.querySelector('.month');
+  const $titleMonth = $modal.querySelector('.date');
+  const $itemDate = $modal.querySelector('.modal-input-date');
+  const $itemContent = $modal.querySelector('.modal-input-txt');
+  const $itemId = $modal.querySelector('.modal-input-id');
+
+  return {
+    isActive() {
+      return isActive;
+    },
+    toggle({ id, date, category: categoryId, type: typeId, content }) {
+      isActive = !isActive;
+      $modal.classList.toggle('--show', isActive);
+      $modalDim.classList.toggle('--show', isActive);
+      document.body.classList.toggle('modal-open', isActive);
+
+      if (!isActive) return;
+      selectedDate = date;
+
+      $itemId.value = id;
+      $titleYear.textContent = date.slice(5, 7);
+      $titleMonth.textContent = date.slice(8, 10);
+      $itemDate.value = date;
+      $itemContent.value = content;
+
+      const $categoryBtn = document.getElementById('modalEditCategoryBtn');
+      const $typeBtn = document.getElementById('modalEditTypeBtn');
+
+      $categoryBtn.value = categoryId;
+      $categoryBtn.textContent = categoryUtil.getCategoryById(categoryId).name;
+      $typeBtn.value = typeId;
+      $typeBtn.textContent = ITEM_TYPE.filter(
+        type => type.id === +typeId
+      )[0].name;
+
+      $itemContent.focus();
+    },
+    close() {
+      isActive = false;
+      $modal.classList.remove('--show');
+      $modalDim.classList.remove('--show');
+      document.body.classList.remove('modal-open');
+      document.getElementById(selectedDate.replaceAll('-', '')).focus();
+    }
+  };
+})();
+
+const trapModalFocus = (e, $firstFocusElem, $lastFocusElem) => {
+  if (e.key !== 'Tab') return;
+
+  // shift + tab
+  if (e.shiftKey && document.activeElement === $firstFocusElem) {
+    $lastFocusElem.focus();
+    e.preventDefault();
+    return;
+  }
+
+  if (document.activeElement === $lastFocusElem) {
+    $firstFocusElem.focus();
+    e.preventDefault();
+  }
 };
 
 // 달력
@@ -936,6 +1317,8 @@ const calendar = (() => {
       $calendarYear.textContent = currentYear + '';
       $calendarMonth.textContent =
         currentMonth < 10 ? '0' + currentMonth : '' + currentMonth;
+      document.getElementById('mainCategoryBtn').textContent =
+        categoryUtil.getCategoryById(currentCategory).name;
     },
     changeToToday: todayPosition => {
       currentYear = year;
@@ -977,382 +1360,6 @@ const calendar = (() => {
     }
   };
 })();
-
-// 카테고리
-const categoryUtil = (() => {
-  let nextId = 1;
-  let categories = [];
-
-  const $categoryMain = document.querySelector('#categoryMain .dropdown-menu');
-  const render = () => {
-    // 메인화면의 카테고리 변경
-    $categoryMain.innerHTML =
-      categories
-        .map(
-          category =>
-            `
-              <li
-                id="cateMain${category.id}"
-                class="dropdown-item dropdown-option-icon ${
-                  category.selected ? '--selected' : ''
-                }"
-                role="option"
-                data-cate-name="${category.name}"
-                data-cate-id=${category.id}
-              >
-                <input
-                  type="text"
-                  value="${category.name}"
-                  readonly
-                  class="dropdown-item-input"
-                />
-                <button class="category-delete-btn" aria-label="삭제">
-                  <span class="icon icon-delete-gray"></span>
-                </button>
-              </li>
-            `
-        )
-        .join('') +
-      `
-        <li class="dropdown-item dropdown-add">
-          <label for="newCategoryMain" class="a11y-hidden">새로운 카테고리명</label>
-          <input
-            type="text"
-            id="newCategoryMain"
-            class="category-add-input"
-            placeholder="카테고리명 입력"
-          />
-          <button class="category-add-btn" aria-label="추가">
-            <span class="icon icon-add-gray"></span>
-          </button>
-        </li>
-      `;
-
-    document.getElementById('newCategoryMain').addEventListener('keyup', e => {
-      if (e.key !== 'Enter') return;
-
-      const cateName = e.target.value.trim();
-      if (!cateName) return;
-      categoryUtil.add(cateName);
-      cateName.value = '';
-      document.getElementById('newCategoryMain').focus();
-    });
-
-    // 아이템추가창 카테고리 변경
-    document.querySelector('.modal-add .dropdown-category').innerHTML =
-      `
-      <span id="modalAddCategoryLabel" class="modal-input-label">카테고리 <span class="a11y-hidden">선택</span></span>
-      <button
-        type="button"
-        id="modalAddCategoryBtn"
-        class="dropdown-toggle"
-        name="itemCategory"
-        value="${categories[0].id}"
-        aria-labelledby="modalAddCategoryLabel modalAddCategoryBtn"
-        aria-haspopup="listbox"
-      >
-        ${categories[0].name}
-      </button>
-      <ul
-        class="dropdown-menu"
-        tabindex="-1"
-        role="listbox"
-        aria-labelledby="modalAddCategoryLabel"
-    >` +
-      categories
-        .map(
-          category =>
-            `
-              <li class="dropdown-item" role="option">
-                <button type="button" value="${category.id}" class="dropdown-option">
-                  ${category.name}
-                </button>
-              </li>
-            `
-        )
-        .join('') +
-      '</ul>';
-
-    // 아이템편집창 카테고리 변경
-    document.querySelector('.modal-edit .dropdown-category').innerHTML =
-      `
-      <span id="modalEditCategoryLabel" class="modal-input-label">카테고리 <span class="a11y-hidden">선택</span></span>
-      <button
-        type="button"
-        id="modalEditCategoryBtn"
-        class="dropdown-toggle --disabled"
-        name="itemCategory"
-        value="${categories[0].id}"
-        aria-labelledby="modalEditCategoryLabel modalEditCategoryBtn"
-        aria-haspopup="listbox"
-      >
-        ${categories[0].name}
-      </button>
-      <ul
-        class="dropdown-menu"
-        tabindex="-1"
-        role="listbox"
-        aria-labelledby="modalEditCategoryLabel"
-    >` +
-      categories
-        .map(
-          category =>
-            `
-              <li class="dropdown-item" role="option">
-                <button type="button" value="${category.id}" class="dropdown-option">
-                  ${category.name}
-                </button>
-              </li>
-            `
-        )
-        .join('') +
-      '</ul>';
-
-    const dropdownCategoryModalAdd = (() => {
-      const $dropdown = document.querySelector(
-        '#modalAddCategoryBtn + .dropdown-menu'
-      );
-      return {
-        toggle() {
-          $dropdown.classList.toggle('--show');
-        },
-        close() {
-          $dropdown.classList.remove('--show');
-        }
-      };
-    })();
-
-    const $modalAddCategoryBtn = document.getElementById('modalAddCategoryBtn');
-
-    document
-      .querySelector('.modal-add .dropdown-category')
-      .addEventListener('click', e => {
-        e.stopPropagation();
-
-        const $targetCategoryBtn = closest(
-          e.target,
-          'dropdown-toggle',
-          'dropdown-category'
-        );
-        const $modalAddCategoryOption = closest(
-          e.target,
-          'dropdown-option',
-          'dropdown-category'
-        );
-
-        if ($targetCategoryBtn) {
-          document
-            .querySelector('#modalAddTypeBtn + .dropdown-menu')
-            .classList.remove('--show');
-          dropdownCategoryModalAdd.toggle();
-          return;
-        }
-
-        if ($modalAddCategoryOption) {
-          $modalAddCategoryBtn.textContent =
-            $modalAddCategoryOption.textContent.trim();
-          $modalAddCategoryBtn.value = $modalAddCategoryOption.value;
-          dropdownCategoryModalAdd.close();
-        }
-      });
-  };
-
-  return {
-    chkLength() {
-      return categories.length;
-    },
-    getSelectedName() {
-      return categories.filter(category => category.selected)[0].name;
-    },
-    getFirstCategory() {
-      return categories[0];
-    },
-    getCategoryById(id) {
-      return categories.filter(category => category.id === +id)[0];
-    },
-    fetch(data) {
-      categories = data;
-      nextId = data.length + 1;
-      render();
-    },
-    add(cateName) {
-      categories = [
-        ...categories,
-        {
-          id: nextId,
-          name: cateName,
-          selected: false
-        }
-      ];
-      nextId += 1;
-      render();
-    },
-    remove(cateId) {
-      let chgSelectedIdx = 0;
-      let removeSelected = false;
-
-      categories.forEach((category, idx, { length }) => {
-        if (category.id === cateId) {
-          if (category.selected) removeSelected = true;
-          chgSelectedIdx = idx === length - 1 ? idx - 1 : idx + 1;
-        }
-      });
-
-      categories = removeSelected
-        ? categories
-            .map((category, idx) => {
-              if (idx === chgSelectedIdx) {
-                return { ...category, selected: true };
-              }
-              return category;
-            })
-            .filter(category => category.id !== cateId)
-        : categories.filter(category => category.id !== cateId);
-      render();
-    },
-    select(cateId) {
-      categories = categories.map(category => {
-        if (category.id === cateId) {
-          return { ...category, selected: true };
-        }
-        if (category.selected) {
-          return { ...category, selected: false };
-        }
-        return category;
-      });
-      render();
-    }
-  };
-})();
-
-const dropdownCategoryMain = (() => {
-  const $dropdown = document.querySelector('#categoryMain .dropdown-menu');
-  return {
-    toggle() {
-      $dropdown.classList.toggle('--show');
-    },
-    close() {
-      $dropdown.classList.remove('--show');
-    }
-  };
-})();
-
-// 모달
-const modalAdd = (() => {
-  let isActive = false;
-  let selectedDate;
-
-  const $modal = document.querySelector('.modal-add');
-  const $modalDim = document.querySelector('.modal-dim');
-  const $titleYear = $modal.querySelector('.month');
-  const $titleMonth = $modal.querySelector('.date');
-  const $itemDate = $modal.querySelector('.modal-input-date');
-  const $itemContent = $modal.querySelector('.modal-input-txt');
-
-  return {
-    isActive() {
-      return isActive;
-    },
-    toggle(itemDate) {
-      isActive = !isActive;
-      $modal.classList.toggle('--show', isActive);
-      $modalDim.classList.toggle('--show', isActive);
-      document.body.classList.toggle('modal-open', isActive);
-
-      if (!isActive) return;
-      selectedDate = itemDate;
-      $titleYear.textContent = itemDate.slice(5, 7);
-      $titleMonth.textContent = itemDate.slice(8, 10);
-      $itemDate.value = itemDate;
-      $itemContent.focus();
-    },
-    close() {
-      isActive = false;
-      $modal.classList.remove('--show');
-      $modalDim.classList.remove('--show');
-      document.body.classList.remove('modal-open');
-      document.getElementById(selectedDate.replaceAll('-', '')).focus();
-    },
-    reset() {
-      const $itemCategoryBtn = $modal.querySelector('#modalAddCategoryBtn');
-      const $itemTypeBtn = $modal.querySelector('#modalAddTypeBtn');
-      $itemCategoryBtn.value = categoryUtil.getFirstCategory().id;
-      $itemCategoryBtn.textContent = categoryUtil.getFirstCategory().name;
-      $itemTypeBtn.value = ITEM_TYPE[0].id;
-      $itemTypeBtn.textContent = ITEM_TYPE[0].name;
-      $itemContent.value = '';
-    }
-  };
-})();
-
-const modalEdit = (() => {
-  let isActive = false;
-  let selectedDate;
-
-  const $modal = document.querySelector('.modal-edit');
-  const $modalDim = document.querySelector('.modal-dim');
-  const $titleYear = $modal.querySelector('.month');
-  const $titleMonth = $modal.querySelector('.date');
-  const $itemDate = $modal.querySelector('.modal-input-date');
-  const $itemContent = $modal.querySelector('.modal-input-txt');
-  const $itemId = $modal.querySelector('.modal-input-id');
-
-  return {
-    isActive() {
-      return isActive;
-    },
-    toggle({ id, date, category: categoryId, type: typeId, content }) {
-      isActive = !isActive;
-      $modal.classList.toggle('--show', isActive);
-      $modalDim.classList.toggle('--show', isActive);
-      document.body.classList.toggle('modal-open', isActive);
-
-      if (!isActive) return;
-      selectedDate = date;
-
-      $itemId.value = id;
-      $titleYear.textContent = date.slice(5, 7);
-      $titleMonth.textContent = date.slice(8, 10);
-      $itemDate.value = date;
-      $itemContent.value = content;
-
-      const $categoryBtn = document.getElementById('modalEditCategoryBtn');
-      const $typeBtn = document.getElementById('modalEditTypeBtn');
-
-      $categoryBtn.value = categoryId;
-      $categoryBtn.textContent = categoryUtil.getCategoryById(categoryId).name;
-      $typeBtn.value = typeId;
-      $typeBtn.textContent = ITEM_TYPE.filter(
-        type => type.id === +typeId
-      )[0].name;
-
-      $itemContent.focus();
-    },
-    close() {
-      isActive = false;
-      $modal.classList.remove('--show');
-      $modalDim.classList.remove('--show');
-      document.body.classList.remove('modal-open');
-      document.getElementById(selectedDate.replaceAll('-', '')).focus();
-    }
-  };
-})();
-
-const trapModalFocus = (e, $firstFocusElem, $lastFocusElem) => {
-  if (e.key !== 'Tab') return;
-
-  // shift + tab
-  if (e.shiftKey && document.activeElement === $firstFocusElem) {
-    $lastFocusElem.focus();
-    e.preventDefault();
-    return;
-  }
-
-  if (document.activeElement === $lastFocusElem) {
-    $firstFocusElem.focus();
-    e.preventDefault();
-  }
-};
 
 const addDataArray = ({ date, category, type, content }) => {
   data = [
@@ -1396,12 +1403,14 @@ const addDataDomTree = ({ date, type, content, category }) => {
              ${calendar.getItemControllerInHTML()}
          </li>`;
 
-  if (category === currentCategory)
+  if (category === currentCategory) {
     $date.lastElementChild.insertAdjacentHTML('beforeend', innerDate);
-  else {
-    currentCategory = category;
-    calendar.renderCalendarDateWithSavedDate();
+    return;
   }
+
+  currentCategory = category;
+  categoryUtil.select(+currentCategory);
+  calendar.renderCalendarDateWithSavedDate();
 };
 
 const deleteDataArray = itemId => {
@@ -1548,7 +1557,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dropdownTypeModalAdd.close();
     });
 
-  document.querySelector('.modal-add').addEventListener('click', () => {
+  $modalAdd.addEventListener('click', () => {
     [...document.querySelectorAll('.modal-add .dropdown-menu')].forEach(
       $dropdown => {
         $dropdown.classList.remove('--show');
@@ -1577,7 +1586,6 @@ document.getElementById('mainCategoryBtn').addEventListener('click', () => {
 document
   .querySelector('#categoryMain .dropdown-menu')
   .addEventListener('click', e => {
-    console.log(e.target);
     const $dropdownOption = closest(
       e.target,
       'dropdown-option-icon',
@@ -1635,14 +1643,14 @@ document
     modalEdit.close();
   });
 
-document.querySelector('.modal-add').addEventListener('submit', e => {
+$modalAdd.addEventListener('submit', e => {
   e.preventDefault();
 
   const newItem = {
-    date: e.currentTarget.itemDate.value,
-    category: e.currentTarget.itemCategory.value,
-    type: e.currentTarget.itemType.value,
-    content: e.currentTarget.itemContent.value
+    date: $modalAdd.itemDate.value,
+    category: $modalAdd.itemCategory.value,
+    type: $modalAdd.itemType.value,
+    content: $modalAdd.itemContent.value
   };
 
   addDataArray(newItem);
@@ -1653,7 +1661,7 @@ document.querySelector('.modal-add').addEventListener('submit', e => {
   modalAdd.reset();
 });
 
-document.querySelector('.modal-edit').addEventListener('submit', e => {
+$modalEdit.addEventListener('submit', e => {
   e.preventDefault();
 
   const editItem = {
@@ -1668,7 +1676,7 @@ document.querySelector('.modal-edit').addEventListener('submit', e => {
   modalEdit.close();
 });
 
-document.querySelector('.modal-add').addEventListener('keydown', e => {
+$modalAdd.addEventListener('keydown', e => {
   trapModalFocus(
     e,
     document.querySelector('.modal-add #modalAddCategoryBtn'),
@@ -1676,7 +1684,7 @@ document.querySelector('.modal-add').addEventListener('keydown', e => {
   );
 });
 
-document.querySelector('.modal-edit').addEventListener('keydown', e => {
+$modalEdit.addEventListener('keydown', e => {
   trapModalFocus(
     e,
     document.querySelector('.modal-edit #modalEditContent'),
