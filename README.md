@@ -14,5 +14,3 @@
 + [조현정](https://github.com/HyunJungC-Dev) : 깃 관리, (JS) 각 요소의 drag and drop 기능 구현  
 + [이경엽](https://github.com/kyupkyup) : 발표자료 & 기획, (JS)달력의 무한 스크롤 기능 구현  
 + [차유림](https://github.com/chacha912) : 프로토타입디자인, (JS)모달창에서 일정 추가&수정 기능 구현  
-
-## 
