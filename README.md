@@ -8,7 +8,8 @@
 - [배포](https://hyunjungc-dev.github.io/JADOO-Calendar/)  
 - [시연연상](https://www.youtube.com/watch?v=tlWO8ZRHJQw)  
 - [위키](https://github.com/HyunJungC-Dev/JADOO-Calendar/wiki)  
-
+- [기획안](https://github.com/chacha912/JADOO-Calendar/blob/bc160ea9f77a311fb95ff22518407053acfaee5b/Jadoo-%EA%B8%B0%ED%9A%8D.pdf)    
+- [최종발표](https://github.com/chacha912/JADOO-Calendar/blob/master/Jadoo-%EC%B5%9C%EC%A2%85.pdf)    
 
 ## 팀 자두 구성 및 역할 분담  
 + [조현정](https://github.com/HyunJungC-Dev) : 깃 관리, (JS) 각 요소의 drag and drop 기능 구현  
